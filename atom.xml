@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[My Octopress Blog]]></title>
+  <title><![CDATA[Sealband's Blog]]></title>
   <link href="http://sealband.github.io/atom.xml" rel="self"/>
   <link href="http://sealband.github.io/"/>
-  <updated>2015-08-09T17:26:48+08:00</updated>
+  <updated>2015-08-09T17:49:19+08:00</updated>
   <id>http://sealband.github.io/</id>
   <author>
-    <name><![CDATA[Your Name]]></name>
+    <name><![CDATA[sealband]]></name>
     
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
