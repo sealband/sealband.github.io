@@ -9,7 +9,7 @@
   <meta name="author" content="sealband">
 
   
-  <meta name="description" content=" Blog Archives ">
+  <meta name="description" content="Git对象 在Git系统中有四种类型的对象，几乎所有Git操作都是在这四种Git对象上进行的，所以了解这四种对象的作用对于应用Git有很大帮助。这四种对象是： “blob”：一个“blob”通常用来存储文件的内容。一个“blob”对象就是一块二进制数据，它没有指向任何东西或有任何其它属性， &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -78,6 +78,148 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/08/18/gitdui-xiang-mo-xing/">Git对象模型</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-08-18T17:56:36+08:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>5:56 pm</span></time>
+        
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>Git对象</h3>
+
+<p>在Git系统中有四种类型的对象，几乎所有Git操作都是在这四种Git对象上进行的，所以了解这四种对象的作用对于应用Git有很大帮助。这四种对象是：</p>
+
+<ul>
+<li>“blob”：一个“blob”通常用来存储文件的内容。一个“blob”对象就是一块二进制数据，它没有指向任何东西或有任何其它属性，甚至没有文件名。因为“blob”对象内容全部都是数据，所以如若两个文件在一个目录树或是一个版本仓库中有同样的数据内容，那么它们将会共享同一个“blob”对象。“blob”对象和其所对应的文件所在路径、文件名是否改被更改都完全没有关系。</li>
+<li>“tree”：像一个目录，管理一些“tree”对象或是“blob”对象。它有一串指向“blob”对象或是其它“tree”对象的指针，一般用来表示内容之间的目录层次关系(就像文件和子目录)。</li>
+<li>“commit”：“commit”对象指向一个“tree对象”，并且带有相关的描述信息，标记项目某一个特定时间点的状态。它包括一些关于时间点的元数据，如时间戳、最近一次提交的作者、指向上次提交的指针等等。</li>
+<li>“tag”：一个“tag”对象包括一个对象名(SHA1签名)、对象类型、标签名、标签创建人的名字(“tagger”), 还有一条可能包含有签名(signature)的消息。</li>
+</ul>
+
+
+<p>例如我们有一个项目，如果我们把它提交(commit)到一个Git仓库中, 在Git中“blob”、“commit”和“tree”对象的关系看起来会如下图:
+<img src="media/14398662658456/objects-example.jpg" alt="objects-example" />￼
+可以看到: 每个目录都创建了“tree”对象, 每个文件都创建了一个对应的“blob”对象。最后有一个“commit”对象来指向根“tree”对象，这样我们就可以追踪项目每一项提交内容。</p>
+
+<h3>SHA1哈希值</h3>
+
+<p>另外在Git里随处可见一种“40个字符”的字符串。由于Git中每一个“对象名”都是对“对象”内容做SHA1(SHA1是一种密码学的哈希算法)哈希计算得来的，所以对于内容不同的对象，会有不同的SHA1哈希值。这样就意味着两个不同内容的对象不可能有相同的“对象名”。</p>
+
+<pre><code>例如  6ff87c4664981e4397625791c8ea3bbb5f2279a3
+</code></pre>
+
+<p>这样做的好处是：</p>
+
+<ul>
+<li>Git只要比较对象名，就可以很快的判断两个对象是否相同，而且通过检查对象内容的SHA1的哈希值和“对象名”是否相同，还可以来判断对象内容是否正确。</li>
+<li>因为在每个repository的“对象名”的计算方法都完全一样，所以同样的内容存在两个不同的仓库中，都会存在相同的“对象名”下。</li>
+</ul>
+
+
+<h3>查看对象</h3>
+
+<ul>
+<li>查看“blob”对象：git show + 对象名（SHA1哈希值）</li>
+<li>查看“tree”对象：git show + 对象名 / git ls-tree + 对象名</li>
+<li>查看“commit”对象：git show / git log + -s + &ndash;pretty=raw +对象名</li>
+<li>查看“tag”对象：git cat-file tag v1.5.0</li>
+</ul>
+
+
+<h3>着重说一下“tree”和“commit”对象</h3>
+
+<ul>
+<li>“tree”：</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git ls-tree fb3a8bdd0ce
+</span><span class='line'>100644 blob 63c918c667fa005ff12ad89437f2fdc80926e21c    .gitignore
+</span><span class='line'>100644 blob 5529b198e8d14decbe4ad99db3f7fb632de0439d    .mailmap
+</span><span class='line'>100644 blob 6ff87c4664981e4397625791c8ea3bbb5f2279a3    COPYING
+</span><span class='line'>040000 tree 2fb783e477100ce076f6bf57e4a6f026013dc745    Documentation
+</span><span class='line'>100755 blob 3c0032cec592a765692234f1cba47dfdcc3a9200    GIT-VERSION-GEN
+</span><span class='line'>100644 blob 289b046a443c0647624607d471289b2c7dcd470b    INSTALL
+</span><span class='line'>100644 blob 4eb463797adc693dc168b926b6932ff53f17d0b1    Makefile
+</span><span class='line'>100644 blob 548142c327a6790ff8821d67c2ee1eff7a656b52    README
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>如上：一个tree对象包括一串条目，每一个条目包括：mode（mode位都是644 或 755，这意味着Git只关心文件的可执行位.）、对象类型、对象名和文件名字。它用来表示一个目录树的内容。
+一个tree对象可以指向一个包含文件内容的blob对象，也可以是包含某个子目录内容的其它tree对象。“tree”对象、“blob”对象和其它所有的对象一样，都用其内容的SHA1哈希值来命名的；只有当两个tree对象的内容完全相同（包括其所指向所有子对象）时，它的名字才会一样，反之亦然。这样就能让Git仅仅通过比较两个相关的tree对象的名字是否相同，来快速的判断其内容是否不同。在有些情况下，“tree”对象也可以指向“commit”对象。</p>
+
+<ul>
+<li>“commit”:</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git show -s --pretty=raw 2be7fcb476
+</span><span class='line'>commit 2be7fcb4764f2dbcee52635b91fedb1b3dcf7ab4
+</span><span class='line'>tree fb3a8bdd0ceddd019615af4d57a53f43d8cee2bf
+</span><span class='line'>parent 257a84d9d02e90447b149af58b271c19405edb6a
+</span><span class='line'>author Dave Watson &lt;dwatson@mimvista.com&gt; 1187576872 -0400
+</span><span class='line'>committer Junio C Hamano &lt;gitster@pobox.com&gt; 1187591163 -0700
+</span><span class='line'>
+</span><span class='line'>    Fix misspelling of 'suppress' in docs
+</span><span class='line'>
+</span><span class='line'>    Signed-off-by: Junio C Hamano &lt;gitster@pobox.com&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>可以看到，一个提交(commit)由以下的部分组成：</p>
+
+<ul>
+<li>一个“tree”对象：“tree”对象的SHA1签名，代表着目录在某一时间点的内容。</li>
+<li>父对象(parent(s))：提交的SHA1签名代表着当前提交前一步的项目历史。上面的那个例子就只有一个父对象；合并的提交(merge commits)可能会有不只一个父对象。如果一个提交没有父对象，那么我们就叫它“根提交”(root commit)，它就代表着项目最初的一个版本(revision)。每个项目必须有至少有一个“根提交”(root commit)。一个项目可能有多个“根提交”，虽然这并不常见。</li>
+<li>作者：做了此次修改的人的名字，还有修改日期。</li>
+<li>提交者（committer)：实际创建提交(commit)的人的名字，同时也带有提交日期。可能会和作者不是同一个人；例如作者写一个补丁(patch)并把它用邮件发给提交者, 由他来创建提交(commit)。</li>
+<li>注释：用来描述此次提交.</li>
+</ul>
+
+
+<p>一个提交本身并没有包括任何信息来说明其做了哪些修改；所有的修改(changes)都是通过与父提交(parents)的内容比较而得出的。尽管git可以检测到文件内容不变而路径改变的情况，但是它不会去显式(explicitly)记录文件的更名操作。</p>
+
+<p>一般用<code>git commit</code>来创建一个提交(commit), 这个提交的父对象一般是当前分支(current HEAD)，同时把存储在当前索引(index)的内容全部提交。</p>
+</div>
+  
+  
+
+
+    </article>
   
   <div class="pagination">
     
